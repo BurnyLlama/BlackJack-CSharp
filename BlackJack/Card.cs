@@ -9,6 +9,7 @@ namespace BlackJack
     internal class Card
     {
         public enum EHouses { Spades, Hearts, Clubs, Diamonds }
+        // This is pretty nasty, but an enum value cannot be a number...
         public enum EValues { A, V2, V3, V4, V5, V6, V7, V8, V9, V10, J, Q, K }
 
         public readonly EHouses House;
@@ -25,6 +26,7 @@ namespace BlackJack
 
         private static int _pointsFromValue(EValues value)
         {
+            // This goes through all possible values, so you can't reach a default of 0.
             switch (value)
             {
                 case EValues.A: return 1;
@@ -45,6 +47,10 @@ namespace BlackJack
             }
         }
 
+        /// <summary>
+        /// Create a properly/nicely formatted string out of the card.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string house;

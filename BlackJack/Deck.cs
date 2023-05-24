@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace BlackJack
 {
+    /// <summary>
+    /// Holds a card deck.
+    /// You can draw one or multiple cards.
+    /// </summary>
     internal class Deck
     {
         private Stack<Card> _cards;

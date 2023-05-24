@@ -8,29 +8,26 @@ namespace BlackJack
 {
     internal class GameState
     {
-        struct Option
-        {
-            public readonly char KeyToPress;
-            public readonly string Name;
-            public readonly Action Func;
-
-            public Option(char keyToPress, string name, Action func)
-            {
-                KeyToPress = keyToPress;
-                Name = name;
-                Func = func;
-            }
-        }
-
+        // Refers to the actual human playing the game.
         private Player _human;
+        // Refers to the """AI""" playing the game against the human.
         private Computer _computer;
        
         // Get the bettor and the dealer respectively.
+        // The computer and human take turns being bettor and dealer respectively.
         private Player _bettor { get => _human.IsDealer ? _computer : _human; }
         private Player _dealer { get => _human.IsDealer ? _human : _computer; }
+        // The above is the best way I have found to do this, as my previous
+        // method of using references like this:
+        //      _bettor = _human;
+        //      _dealer = _computer;
+        // caused some issues... I think the garbage collector or references
+        // didn't work the way I expected.
 
         private Deck _deck;
 
+        // Whether or not the human has sold their soul to the Devil.
+        // (Don't worry about it...)
         private bool _hasSoldSoul;
 
         public GameState()
@@ -42,16 +39,30 @@ namespace BlackJack
         }
 
         /// <summary>
-        /// This starts the game loop.
+        /// This starts the game loop. It runs until error, an ending, or the player chooses to quit.
         /// </summary>
         public void Run()
         {
+            // Inform the player about the game...
+            _tellHuman("Welcome to BlackJack!");
+            _tellHuman("Here's a list of all symbols and what they mean:");
+            _tellHuman("  % Spades");
+            _tellHuman("  # Hearts");
+            _tellHuman("  ¤ Clubs");
+            _tellHuman("  * Diamonds");
+            _tellHuman("In this game aces are *always* worth 1 point!");
+            _tellHuman("Anyways... Let the game begin! Good luck!\n");
+
             bool letGameContinueRunning = true;
             while (letGameContinueRunning)
             {
+                // Inform the player of whether they are dealer or bettor.
+                // This can be used for the player to choose diffrent strategies,
+                // but also lessen any confusion about the game.
                 string humansRole = _human.IsDealer ? "dealer" : "bettor";
                 _tellHuman($"You are the {humansRole} this game!");
 
+                // Give the player information about their balance.
                 _tellHuman($"Your bank account balance is {_human.Coins} coins.");
                 if (_human.Coins < 25)
                 {
@@ -59,15 +70,19 @@ namespace BlackJack
                     _tellHuman("Sorry, what I meant to say was: you should bet it all for higher rewards when you win!");
                 }
 
+                // Start the betting.
                 _tellHuman("It is betting time!");
                 _betting();
                 _tellHuman("Final bets were:");
                 _tellHuman($"(Bettor) {_bettor.Bet} -- {_dealer.Bet} (Dealer)");
 
+                // Deal two cards each to the bettor and dealer.
                 _tellHuman("Alright, let's deal the initial cards...");
                 _dealInitialCards();
 
-                // Present the initial cards
+                // Present the initial cards.
+                // If the human is dealer it gets to know all the computer's cards.
+                // If the human is bettor, it only gets to know one of the computer's cards.
                 if (_human.IsDealer)
                 {
                     _tellHuman("Since you are the dealer, you'll get to see the bettor's initial cards:");
@@ -79,10 +94,12 @@ namespace BlackJack
                     _tellHuman("One of the dealer's cards is: " + _dealer.Hand[0].ToString());
                 }
 
+                // Let the bettor draw more cards if they want to.
                 _tellHuman("Alright, let's ask if the bettor wants more cards...");
                 bool isDealerAbove21 = false;
                 bool isBettorAbove21 = _askIfBettorWantsMoreCards();
-                
+
+                // Inform of the final hand the bettor has...
                 _tellHuman($"Final hand of bettor: {_bettor.HandAsString()} ({_bettor.TotalPointsInHand()} points)");
                 
                 // There's only a need to let the dealer draw cards if the bettor gets busted.
@@ -92,18 +109,24 @@ namespace BlackJack
                     isDealerAbove21 = _letDealerTakeCards();
                 }
 
+                // Inform of the final hand the dealer has...
                 _tellHuman($"Final hand of dealer: {_dealer.HandAsString()} ({_dealer.TotalPointsInHand()} points)");
 
+                // Check who won -- or if it was a draw.
                 _tellHuman("So... the game is over. Let's see who won!");
                 Player[] winners = _checkWinners(isBettorAbove21, isDealerAbove21);
 
+                // Give out money to the winner(s).
                 _tellHuman("Okay, let's turn out all prices!");
                 _giveWinnersMoney(winners);
                 _tellHuman($"Congratulations to the winner{(winners.Length == 1 ? "" : "s")}");
 
+                // Check if the player goes bankrupt...
+                // The player can't continue playing without coins.
                 bool isBankrupt = _checkBankruptcy();
                 if (!isBankrupt)
-                { 
+                {
+                   // Ask if the player wants to quit earlier...
                     letGameContinueRunning = _askPlayerIfWantsToPlayMore();
                 }
                 else
@@ -111,10 +134,36 @@ namespace BlackJack
                     letGameContinueRunning = false;
                 }
 
+                // This let's the human and computer switch roles.
                 _switchBettorAndDealer();
             }
         }
 
+        /// <summary>
+        /// This is a "glorified" `Console.WriteLine()`.
+        /// What is does is prepend messages with `[Game Says]:`.
+        /// It also writes out the message character by character.
+        /// </summary>
+        /// <param name="prompt"></param>
+        private void _tellHuman(string prompt)
+        {
+            // Wait a bit before starting to write...
+            Thread.Sleep(120);
+            // Write one character at a time for an "rpg style" dialog system.
+            foreach (char character in "[Game Says]: " + prompt)
+            {
+                Console.Write(character);
+                Thread.Sleep(8);
+            }
+            // End the line.
+            Console.WriteLine();
+        }
+
+        /// <summary>
+        /// This asks for and grabs input from the user.
+        /// It handles errors and won't crash the program (AFAIK).
+        /// </summary>
+        /// <returns></returns>
         private string _grabInput()
         {
             while (true)
@@ -139,6 +188,10 @@ namespace BlackJack
             }
         }
 
+        /// <summary>
+        /// This grabs a singular key press from the user.
+        /// </summary>
+        /// <returns></returns>
         private char _grabKey()
         {
             while (true)
@@ -158,19 +211,11 @@ namespace BlackJack
             }
         }
 
-        private void _tellHuman(string prompt)
-        {
-            Thread.Sleep(150);
-            // Write one character at a time for an "rpg style" dialog system.
-            foreach (char character in "[Game Says]: " + prompt)
-            {
-                Console.Write(character);
-                Thread.Sleep(8);
-            }
-            // End the line.
-            Console.WriteLine();
-        }
-
+        /// <summary>
+        /// Asks the user for an integer.
+        /// This should also be error safe (AFAIK).
+        /// </summary>
+        /// <returns></returns>
         private int _askHumanForInt()
         {
             while (true)
@@ -188,6 +233,14 @@ namespace BlackJack
             }
         }
 
+        /// <summary>
+        /// Asks the user for an integer with a min and max value.
+        /// This should also be error safe (AFAIK).
+        /// </summary>
+        /// <param name="prompt"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
         private int _askHumanForInt(string prompt, int min, int max)
         {
             _tellHuman(prompt);
@@ -212,10 +265,17 @@ namespace BlackJack
             }
         }
 
+        /// <summary>
+        /// Let the human choose what to do from a set of actions.
+        /// This should also be error safe (AFAIK).
+        /// </summary>
+        /// <param name="prompt"></param>
+        /// <param name="options"></param>
         private void _letHumanChooseActionAndRunIt(string prompt, Option[] options)
         {
             _tellHuman(prompt);
 
+            // Print all options
             foreach (Option option in options)
             {
                 Console.WriteLine($"  [{option.KeyToPress}] {option.Name}");
@@ -234,6 +294,7 @@ namespace BlackJack
                         continue;
                     }
 
+                    // This is null-safe since the code above checks if an option exists...
                     Option chosenOption = Array.Find(options, option => option.KeyToPress.ToString().ToLower().First() == userChoice);
                     chosenOption.Func();
                     return;
@@ -246,6 +307,10 @@ namespace BlackJack
             }
         }
 
+        // Let the betting take place.
+        // The bettor is the first on to place a bet.
+        // The dealer must at least match the bettor's bet, but can go higher.
+        // TODO: Ask if the bettor want to match the dealer's bet if it is higher.
         private void _betting()
         {
             if (!_human.IsDealer)
@@ -265,6 +330,9 @@ namespace BlackJack
             }
         }
 
+        /// <summary>
+        /// Deal out the initial two cards each.
+        /// </summary>
         private void _dealInitialCards()
         {
             List<Card> cardsForBettor = _deck.DrawMany(2);
@@ -274,6 +342,10 @@ namespace BlackJack
             _dealer.ReceiveCards(cardsForDealer);
         }
 
+        /// <summary>
+        /// Asks if the human wants to hit or not.
+        /// </summary>
+        /// <returns>Returns true if the human wants to hit.</returns>
         private bool _askIfHumanWantsToHit()
         {
             bool shouldHit = false;
@@ -282,14 +354,17 @@ namespace BlackJack
                     new Option('H', "Hit", () => shouldHit = true),
                     new Option('S', "Stand", () => shouldHit = false)
                 };
-            _tellHuman("You have the following cards: " + _human.HandAsString());
-            _tellHuman($"You have {_human.TotalPointsInHand()} points!");
+
+            // Inform the user of their hand;
+            _tellHuman($"You have the following cards: {_human.HandAsString()} ({_human.TotalPointsInHand()} points)");
+
+            // Let the human choose whether or not to hit.
             _letHumanChooseActionAndRunIt("Would you like more cards, or do you want to stop?", options);
             return shouldHit;
         }
 
         /// <summary>
-        /// Returns true if the bettor gets above 21 points.
+        /// Returns true if the bettor goes above 21 points; busts.
         /// </summary>
         /// <returns></returns>
         private bool _askIfBettorWantsMoreCards()
@@ -320,7 +395,7 @@ namespace BlackJack
         }
 
         /// <summary>
-        /// Returns true if the dealer goes above 21.
+        /// Returns true if the dealer goes above 21; busts.
         /// </summary>
         /// <returns></returns>
         private bool _letDealerTakeCards()
@@ -356,9 +431,10 @@ namespace BlackJack
         /// </summary>
         /// <param name="isBettorAbove21"></param>
         /// <param name="isDealerAbove21"></param>
-        /// <returns></returns>
+        /// <returns>Returns both the computer and human if it's a draw.</returns>
         private Player[] _checkWinners(bool isBettorAbove21, bool isDealerAbove21)
         {
+            // Remind the human of their role, as all dialog is "role based".
             string humanRole = _human.IsDealer ? "dealer" : "bettor";
             _tellHuman($"Remember that you are the {humanRole}!");
 
@@ -393,6 +469,10 @@ namespace BlackJack
             return new Player[] { _dealer };
         }
 
+        /// <summary>
+        /// Give out the coins to the winner(s).
+        /// </summary>
+        /// <param name="winners"></param>
         private void _giveWinnersMoney(Player[] winners)
         {
             int priceMoney = (_human.Bet + _computer.Bet) / winners.Length;
@@ -412,9 +492,14 @@ namespace BlackJack
                 winner.ReceiveCoins(priceMoney);
             }
 
+            // Inform the human of their balance.
             _tellHuman($"Your new balance is {_human.Coins} coins!");
         }
 
+        /// <summary>
+        /// Ask if the player wants to play more or quit.
+        /// </summary>
+        /// <returns>Returns true if the player wants to play more.</returns>
         private bool _askPlayerIfWantsToPlayMore()
         {
             bool playerWantsOneMoreGame = false;
@@ -427,6 +512,9 @@ namespace BlackJack
             return playerWantsOneMoreGame;
         }
 
+        /// <summary>
+        /// Switch around the roles of bettor and dealer among the human and computer.
+        /// </summary>
         private void _switchBettorAndDealer()
         {
             // "Refresh" the player and computer...
@@ -442,6 +530,11 @@ namespace BlackJack
             _dealer.ClearHand();
         }
 
+        /// <summary>
+        /// Check if the player goes bankrupt.
+        /// The player cannot continue playing if bankrupt.
+        /// </summary>
+        /// <returns>Returns true if the player is bankrupt.</returns>
         private bool _checkBankruptcy()
         {
             if (_human.Coins >= 1)
@@ -449,6 +542,7 @@ namespace BlackJack
                 return false;
             }
 
+            // Ending #2
             if (_hasSoldSoul)
             {
                 _tellHuman("Oh no! Seems as if you're broke again...");
@@ -480,6 +574,7 @@ namespace BlackJack
             }
             else
             {
+                // Ending #1
                 _tellHuman("The Devil isn't pleased with you. He dismisses you...");
                 _tellHuman("You wanted to live a healthy life without gambling...");
                 _tellHuman("Sadly, no money means broke, broke means no food, no food means no life...");

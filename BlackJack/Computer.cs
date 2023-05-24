@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 using System.Transactions;
 
 namespace BlackJack
-{
+{   
+    /// <summary>
+    /// Some extra functions that the computer needs to be able to play.
+    /// Unlike the human, it cannot think for itself, so it needs "AI".
+    /// </summary>
     internal class Computer : Player
     {
         // I dunno if there is a nicer way to do this...

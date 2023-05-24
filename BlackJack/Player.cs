@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace BlackJack
 {
+    /// <summary>
+    /// Holds all properties for a player.
+    /// Note: Both the human and the computer playing the game are technically players.
+    /// </summary>
     internal class Player
     {
         public bool IsDealer;
@@ -14,7 +18,8 @@ namespace BlackJack
         public int Coins { get => _coins; }
 
         protected List<Card> _hand;
-        // Copy the hand so that it cannot be modified!
+        // Copy the hand so that it cannot be modified elsewhere!
+        // This might add some (not noticable) slowdown, but is worth it for security.
         public List<Card> Hand { get => _hand.Where(card => card != null).Select(card => new Card(card.House, card.Value)).ToList(); }
 
         protected int _bet;
