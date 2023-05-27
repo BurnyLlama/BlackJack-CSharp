@@ -24,35 +24,6 @@ namespace BlackJack
         {
             int sumOfCardsInHand = _hand.Sum(card => card.Points);
 
-            switch (sumOfCardsInHand)
-            {
-                case int n when n < 11: return true;
-                // TODO: This should not be false by default.
-                // I will come up with a "Good Black Jack Algorithm (tm)".
-                case int n when n >= 11 && n < 21: return false;
-                case int n when n >= 21: return false;
-                // Deafult to not hit...
-                default: return false;
-            }
-        }
-
-        /// <summary>
-        /// Same as above, but takes the players hand into account.
-        /// </summary>
-        /// <param name="playerHand"></param>
-        /// <returns></returns>
-        public bool ChooseToHitOrNot(List<Card> playerHand)
-        {
-            int sumOfCardsInHand = _hand.Sum(card => card.Points);
-            int sumOfCardsInPlayerHand = playerHand.Sum(card => card.Points);
-
-            // Don't take any more cards if the computer
-            // already has more points than the player.
-            if (sumOfCardsInHand > sumOfCardsInPlayerHand)
-            {
-                return false;
-            }
-
             // Always safe to draw if sum <= 11
             if (sumOfCardsInHand <= 11)
             {
@@ -72,12 +43,34 @@ namespace BlackJack
                 // It is valid where 11 < sumOfCardsInHand < 21.
                 // A random number is then generated and if that number is less than the percentage
                 // generated above, a card is drawn.
-                bool shouldHit = rand.NextDouble() <= ((21.0d - (double) sumOfCardsInHand) / 13.0d);
+                bool shouldHit = rand.NextDouble() <= ((21.0d - (double)sumOfCardsInHand) / 13.0d);
                 return shouldHit;
             }
 
             // If the execuion gets to this part the sum of cards on hand is <= 21,
             // which means there should be no more hits.
+            return false;
+        }
+
+        /// <summary>
+        /// Same as above, but takes the players hand into account.
+        /// </summary>
+        /// <param name="playerHand"></param>
+        /// <returns></returns>
+        public bool ChooseToHitOrNot(List<Card> playerHand)
+        {
+            int sumOfCardsInHand = _hand.Sum(card => card.Points);
+            int sumOfCardsInPlayerHand = playerHand.Sum(card => card.Points);
+
+            // Always take more cards if less than player hand.
+            // If the computer stops under the player hand, it's a loss.
+            // If the computer instead continues it either busts or, if lucky, wins.
+            if (sumOfCardsInHand < sumOfCardsInPlayerHand)
+            {
+                return true;
+            }
+
+            // Otherwise the computer has a higher sum, which means a win, so don't hit.
             return false;
         }
 
