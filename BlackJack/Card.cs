@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,16 +58,16 @@ namespace BlackJack
             switch (House)
             {
                 case EHouses.Spades: 
-                    house = "%";
+                    house = $"{SGR.Black}>";
                     break;
                 case EHouses.Hearts:
-                    house = "#";
+                    house = $"{SGR.Red}<";
                     break;
                 case EHouses.Clubs:
-                    house = "¤";
+                    house = $"{SGR.Black}%";
                     break;
                 case EHouses.Diamonds:
-                    house = "*";
+                    house = $"{SGR.Red}+";
                     break;
                 default:
                     house = "-";
@@ -120,7 +121,7 @@ namespace BlackJack
                     break;
             }
 
-            return $"[{house}{value}]";
+            return $"{SGR.BG_BrightWhite}{SGR.Black}[{house}{value}{SGR.Black}]{SGR.Reset}";
         }
     }
 }

@@ -107,5 +107,18 @@ namespace BlackJack
             // If no increase, meet the player's bet.
             return playerBet;
         }
+
+        /// <summary>
+        /// Let the computer choose whether or not to match the player's bet...
+        /// This could use some statistics, but random is cool too!
+        /// </summary>
+        /// <returns></returns>
+        public bool ChooseToMatchBet()
+        {
+            int randomSeed = (int)System.DateTime.Now.ToBinary();
+            Random rand = new Random(randomSeed);
+            bool shouldMatchBet = rand.Next(1, 12) > 5;
+            return shouldMatchBet;
+        }
     }
 }

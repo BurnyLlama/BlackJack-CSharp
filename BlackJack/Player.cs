@@ -58,6 +58,13 @@ namespace BlackJack
             _coins -= bet;
         }
 
+        public void IncreaseBetTo(int newBet)
+        {
+            int betDifference = newBet - _bet;
+            _bet += betDifference;
+            _coins -= betDifference;
+        }
+
         public void ReceiveCoins(int coins)
         {
             if (coins < 0)
