@@ -113,5 +113,21 @@ namespace BlackJack
             bool shouldMatchBet = rand.Next(1, 12) > 5;
             return shouldMatchBet;
         }
+
+        /// <summary>
+        /// The computer only wants to double if it has more than 18 points on hand.
+        /// </summary>
+        /// <returns></returns>
+        public bool ChooseToDouble()
+        {
+            if (Hand.Sum(card => card.Points) > 18)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

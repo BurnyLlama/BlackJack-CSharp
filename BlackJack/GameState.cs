@@ -46,10 +46,10 @@ namespace BlackJack
             // Inform the player about the game...
             _tellHuman(SGR.Bold + "Welcome to BlackJack!");
             _tellHuman("Here's a list of all symbols and what they mean:");
-            _tellHuman($"  [{SGR.BG_BrightWhite}{SGR.Black}>{SGR.Reset}] Spades");
-            _tellHuman($"  [{SGR.BG_BrightWhite}{SGR.Red}<{SGR.Reset}] Hearts");
-            _tellHuman($"  [{SGR.BG_BrightWhite}{SGR.Black}%{SGR.Reset}] Clubs");
-            _tellHuman($"  [{SGR.BG_BrightWhite}{SGR.Red}+{SGR.Reset}] Diamonds");
+            _tellHuman($"  {SGR.BG_BrightWhite}{SGR.Black}[>]{SGR.Reset} Spades");
+            _tellHuman($"  {SGR.BG_BrightWhite}{SGR.Red}[<]{SGR.Reset} Hearts");
+            _tellHuman($"  {SGR.BG_BrightWhite}{SGR.Black}[%]{SGR.Reset} Clubs");
+            _tellHuman($"  {SGR.BG_BrightWhite}{SGR.Red}[+]{SGR.Reset} Diamonds");
             _tellHuman($"In this game aces are {SGR.Underline}always{SGR.Reset} worth 1 point!");
             _tellHuman("Anyways... Let the game begin! Good luck!\n");
 
@@ -60,7 +60,7 @@ namespace BlackJack
                 // This can be used for the player to choose diffrent strategies,
                 // but also lessen any confusion about the game.
                 string humansRole = _human.IsDealer ? "dealer" : "bettor";
-                _tellHuman($"You are the {SGR.Cyan}{humansRole}{SGR.Reset} this game!");
+                _tellHuman($"You are the {SGR.Cyan}{humansRole}{SGR.Reset} this round!");
 
                 // Give the player information about their balance.
                 _printBalance();
@@ -83,6 +83,9 @@ namespace BlackJack
                 // Deal two cards each to the bettor and dealer.
                 _tellHuman("Alright, let's deal the initial cards...");
                 _dealInitialCards();
+
+                // Now the computer and human can choose if they want to double their bet.
+                _askToDoubleBet();
 
                 // Present the initial cards.
                 // If the human is dealer it gets to know all the computer's cards.
@@ -123,7 +126,7 @@ namespace BlackJack
                 // Give out money to the winner(s).
                 _tellHuman("Okay, let's turn out all prices!");
                 _giveWinnersMoney(winners);
-                _tellHuman($"Congratulations to the winner{(winners.Length == 1 ? "" : "s")}");
+                _tellHuman($"Congratulations to the winner{(winners.Length == 1 ? "" : "s")}!");
                 // Inform the human of their new balance.
                 _printBalance();
 
@@ -362,7 +365,7 @@ namespace BlackJack
                         new Option('M', $"Match the dealer's bet of {SGR.Yellow}{_dealer.Bet} coins{SGR.Reset}.", () => shouldMatch = true),
                         new Option('K', $"Keep your bet of {SGR.Yellow}{_bettor.Bet} coins{SGR.Reset}.", () => shouldMatch = false),
                     };
-                _letHumanChooseActionAndRunIt($"Seems the dealer bets higher ({SGR.Yellow}{_dealer.Coins} coins{SGR.Reset}), do you want to match their bet?", options);
+                _letHumanChooseActionAndRunIt($"Seems the dealer bets higher ({SGR.Yellow}{_dealer.Bet} coins{SGR.Reset}), do you want to match their bet?", options);
             }
 
             if (shouldMatch)
@@ -385,6 +388,43 @@ namespace BlackJack
         }
 
         /// <summary>
+        /// After the human and the computer have seen their cards they can choose to double their bet.
+        /// This only works if they have enough coins to do it!
+        /// </summary>
+        private void _askToDoubleBet()
+        {
+            if (_human.Coins >= _human.Bet)
+            {
+                // Inform the user of their hand:
+                _tellHuman($"You have the following cards: {_human.HandAsString()} ({_human.TotalPointsInHand()} points)");
+                bool shouldDouble = false;
+                Option[] options = new Option[]
+                    {
+                        new Option('D', $"Double it! ({SGR.Yellow}{_human.Bet * 2} coins{SGR.Reset})", () => shouldDouble = true),
+                        new Option('K', $"Keep your bet! ({SGR.Yellow}{_human.Bet} coins{SGR.Reset})", () => shouldDouble = false)
+                    };
+                _letHumanChooseActionAndRunIt("Now when you've gotten to see the cards, do you want to double your bet?", options);
+
+                if (shouldDouble)
+                {
+                    _human.IncreaseBetTo(_human.Bet * 2);
+                    _tellHuman($"You chose to double your bet! It is now {SGR.Yellow}{_human.Bet} coins{SGR.Reset}!");
+                }
+            }
+
+            if (_computer.Coins > _computer.Bet)
+            {
+                bool shouldDouble = _computer.ChooseToDouble();
+
+                if (shouldDouble)
+                {
+                    _computer.IncreaseBetTo(_computer.Bet * 2);
+                    _tellHuman($"The computer chose to double their bet! It is now {SGR.Yellow}{_computer.Bet} coins{SGR.Reset}!");
+                }
+            }
+        }
+
+        /// <summary>
         /// Asks if the human wants to hit or not.
         /// </summary>
         /// <returns>Returns true if the human wants to hit.</returns>
@@ -397,7 +437,7 @@ namespace BlackJack
                     new Option('S', "Stand", () => shouldHit = false)
                 };
 
-            // Inform the user of their hand;
+            // Inform the user of their hand:
             _tellHuman($"You have the following cards: {_human.HandAsString()} ({_human.TotalPointsInHand()} points)");
 
             // Let the human choose whether or not to hit.

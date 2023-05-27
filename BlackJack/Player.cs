@@ -19,7 +19,7 @@ namespace BlackJack
 
         protected List<Card> _hand;
         // Copy the hand so that it cannot be modified elsewhere!
-        // This might add some (not noticable) slowdown, but is worth it for security.
+        // This might add some (in this case not noticable) slowdown, but is worth it for security.
         public List<Card> Hand { get => _hand.Where(card => card != null).Select(card => new Card(card.House, card.Value)).ToList(); }
 
         protected int _bet;
