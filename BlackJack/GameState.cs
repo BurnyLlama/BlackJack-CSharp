@@ -136,7 +136,7 @@ namespace BlackJack
                 if (!isPlayerBankrupt)
                 {
                    // Ask if the player wants to quit earlier...
-                    letGameContinueRunning = _askPlayerIfWantsToPlayMore();)
+                    letGameContinueRunning = _askPlayerIfWantsToPlayMore();
                 }
                 else
                 {
@@ -169,7 +169,7 @@ namespace BlackJack
             foreach (char character in $"\u001b[?25l{SGR.BrightCyan}[{SGR.BrightGreen}Game Says{SGR.BrightCyan}]:{SGR.Reset} " + prompt + SGR.Reset)
             {
                 Console.Write(character);
-                Thread.Sleep(5);
+                Thread.Sleep(7);
             }
             // End the line.
             Console.WriteLine();
@@ -704,6 +704,8 @@ namespace BlackJack
                 _tellHuman("Congratulations! And hat's off to you!");
                 _tellHuman($"{SGR.BrightYellow}You have discovered {SGR.Green}Ending #4{SGR.BrightYellow}!");
             }
+
+            return true;
         }
     }
 }
