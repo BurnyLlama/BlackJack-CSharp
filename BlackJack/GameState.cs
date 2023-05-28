@@ -51,6 +51,7 @@ namespace BlackJack
             _tellHuman($"  {SGR.BG_BrightWhite}{SGR.Black}[%]{SGR.Reset} Clubs");
             _tellHuman($"  {SGR.BG_BrightWhite}{SGR.Red}[+]{SGR.Reset} Diamonds");
             _tellHuman($"In this game aces are {SGR.Underline}always{SGR.Reset} worth 1 point!");
+            _tellHuman("The game has four endingins -- try finding them all!");
             _tellHuman("Anyways... Let the game begin! Good luck!\n");
 
             bool letGameContinueRunning = true;
@@ -131,19 +132,26 @@ namespace BlackJack
 
                 // Check if the player goes bankrupt...
                 // The player can't continue playing without coins.
-                bool isBankrupt = _checkBankruptcy();
-                if (!isBankrupt)
+                bool isPlayerBankrupt = _checkPlayerBankruptcy();
+                if (!isPlayerBankrupt)
                 {
                    // Ask if the player wants to quit earlier...
-                    letGameContinueRunning = _askPlayerIfWantsToPlayMore();
+                    letGameContinueRunning = _askPlayerIfWantsToPlayMore();)
                 }
                 else
                 {
                     letGameContinueRunning = false;
                 }
 
-                // This let's the human and computer switch roles.
-                _switchBettorAndDealer();
+                // The computer bankrupts, end the game.
+                bool isComputerBankrupt = _checkComputerBankrupcy();
+                if (isComputerBankrupt)
+                {
+                    letGameContinueRunning = false;
+                }
+
+            // This let's the human and computer switch roles.
+            _switchBettorAndDealer();
             }
         }
 
@@ -357,7 +365,8 @@ namespace BlackJack
             {
                 shouldMatch = _computer.ChooseToMatchBet();
             }
-            else
+            // The human has to have enough coins to be able to match.
+            else if (_human.Coins > _computer.Bet)
             {
                 Option[] options = new Option[]
                     {
@@ -620,7 +629,7 @@ namespace BlackJack
         /// The player cannot continue playing if bankrupt.
         /// </summary>
         /// <returns>Returns true if the player is bankrupt.</returns>
-        private bool _checkBankruptcy()
+        private bool _checkPlayerBankruptcy()
         {
             if (_human.Coins >= 1)
             {
@@ -667,6 +676,33 @@ namespace BlackJack
                 _tellHuman("I am sorry it had to end this way...");
                 _tellHuman($"{SGR.BrightYellow}You have discovered {SGR.Green}Ending #1{SGR.BrightYellow}!");
                 return true;
+            }
+        }
+
+        private bool _checkComputerBankrupcy()
+        {
+            if (_computer.Coins > 0)
+            {
+                return false;
+            }
+
+            _tellHuman("Interesting... it seems the computer is bankrupt.");
+            _tellHuman("This must mean you beat the casino!");
+            _tellHuman("I am surprised. I didn't think this was possible...");
+
+            if (_hasSoldSoul)
+            {
+                // Ending #3
+                _tellHuman("Too bad it required selling your soul...");
+                _tellHuman("I am sure you didn't need it anyways... congratulations!");
+                _tellHuman($"{SGR.BrightYellow}You have discovered {SGR.Green}Ending #3{SGR.BrightYellow}!");
+            }
+            else
+            {
+                // Ending #4
+                _tellHuman($"I am surprised you could do this without ... I don't know... something like selling you soul to the {SGR.Red}Devil{SGR.Reset}.");
+                _tellHuman("Congratulations! And hat's off to you!");
+                _tellHuman($"{SGR.BrightYellow}You have discovered {SGR.Green}Ending #4{SGR.BrightYellow}!");
             }
         }
     }
