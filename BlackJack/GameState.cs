@@ -33,7 +33,7 @@ namespace BlackJack
         public GameState()
         {
             _human = new Player(false, 500);
-            _computer = new Computer(true, 50_000);
+            _computer = new Computer(true, 15_000);
             _deck = new Deck();
             _hasSoldSoul = false;
         }
@@ -60,7 +60,7 @@ namespace BlackJack
                 // This can be used for the player to choose diffrent strategies,
                 // but also lessen any confusion about the game.
                 string humansRole = _human.IsDealer ? "dealer" : "bettor";
-                _tellHuman($"You are the {SGR.Cyan}{humansRole}{SGR.Reset} this round!");
+                _tellHuman($"You are the {SGR.BrightCyan}{humansRole}{SGR.Reset} this round!");
 
                 // Give the player information about their balance.
                 _printBalance();
@@ -78,7 +78,7 @@ namespace BlackJack
                     _askIfBettorWantToMatchDealersBet();
                 }
                 _tellHuman("Final bets were:");
-                _tellHuman($"(Bettor) {_bettor.Bet} -- {_dealer.Bet} (Dealer)");
+                _tellHuman($"({SGR.BrightBlue}Bettor{SGR.Reset}) {_bettor.Bet} -- {_dealer.Bet} ({SGR.BrightBlue}Dealer{SGR.Reset})");
 
                 // Deal two cards each to the bettor and dealer.
                 _tellHuman("Alright, let's deal the initial cards...");
@@ -92,32 +92,31 @@ namespace BlackJack
                 // If the human is bettor, it only gets to know one of the computer's cards.
                 if (_human.IsDealer)
                 {
-                    _tellHuman("Since you are the dealer, you'll get to see the bettor's initial cards:");
-                    _tellHuman("The bettor's initial cards are: " + _bettor.HandAsString());
+                    _tellHuman($"Since you are the dealer, you'll get to see the {SGR.BrightBlue}bettor's{SGR.Reset} initial cards:" + _bettor.HandAsString());
                 }
                 else
                 {
-                    _tellHuman("You are the bettor, but you will get a preview of one of the dealer's cards:");
-                    _tellHuman("One of the dealer's cards is: " + _dealer.Hand[0].ToString());
+                    _tellHuman($"You are the {SGR.BrightBlue}bettor{SGR.Reset}, but you will get a preview of one of the {SGR.BrightBlue}dealer's{SGR.Reset} cards:");
+                    _tellHuman($"One of the {SGR.BrightBlue}dealer's{SGR.Reset} cards is: " + _dealer.Hand[0].ToString());
                 }
 
                 // Let the bettor draw more cards if they want to.
-                _tellHuman("Alright, let's ask if the bettor wants more cards...");
+                _tellHuman($"Alright, let's ask if the {SGR.BrightBlue}bettor{SGR.Reset} wants more cards...");
                 bool isDealerAbove21 = false;
                 bool isBettorAbove21 = _askIfBettorWantsMoreCards();
 
                 // Inform of the final hand the bettor has...
-                _tellHuman($"Final hand of bettor: {_bettor.HandAsString()} ({_bettor.TotalPointsInHand()} points)");
+                _tellHuman($"Final hand of {SGR.BrightBlue}bettor{SGR.Reset}: {_bettor.HandAsString()} ({_bettor.TotalPointsInHand()} points)");
                 
                 // There's only a need to let the dealer draw cards if the bettor gets busted.
                 if (!isBettorAbove21)
                 {
-                    _tellHuman("Alright, let's ask if the dealer wants more cards...");
+                    _tellHuman($"Alright, let's ask if the {SGR.BrightBlue}dealer{SGR.Reset} wants more cards...");
                     isDealerAbove21 = _letDealerTakeCards();
                 }
 
                 // Inform of the final hand the dealer has...
-                _tellHuman($"Final hand of dealer: {_dealer.HandAsString()} ({_dealer.TotalPointsInHand()} points)");
+                _tellHuman($"Final hand of {SGR.BrightBlue}dealer{SGR.Reset}: {_dealer.HandAsString()} ({_dealer.TotalPointsInHand()} points)");
 
                 // Check who won -- or if it was a draw.
                 _tellHuman("So... the game is over. Let's see who won!");
@@ -157,12 +156,12 @@ namespace BlackJack
         private void _tellHuman(string prompt)
         {
             // Wait a bit before starting to write...
-            Thread.Sleep(120);
+            Thread.Sleep(100);
             // Write one character at a time for an "rpg style" dialog system.
             foreach (char character in $"\u001b[?25l{SGR.BrightCyan}[{SGR.BrightGreen}Game Says{SGR.BrightCyan}]:{SGR.Reset} " + prompt + SGR.Reset)
             {
                 Console.Write(character);
-                Thread.Sleep(8);
+                Thread.Sleep(5);
             }
             // End the line.
             Console.WriteLine();
@@ -321,8 +320,8 @@ namespace BlackJack
         /// </summary>
         private void _printBalance()
         {
-            _tellHuman($"Your balance is {SGR.Yellow}{_human.Coins} coins{SGR.Reset}!");
-            _tellHuman($"The bank's balance is {SGR.Yellow}{_computer.Coins} coins{SGR.Reset}!");
+            _tellHuman($"Your balance is {SGR.BrightYellow}{_human.Coins} coins{SGR.Reset}!");
+            _tellHuman($"The computer's balance is {SGR.BrightYellow}{_computer.Coins} coins{SGR.Reset}!");
         }
 
         // Let the betting take place.
@@ -342,7 +341,7 @@ namespace BlackJack
             {
                 int computerBet = _computer.ChooseBet(_human.Coins, 0);
                 _computer.PlaceBet(computerBet);
-                _tellHuman($"The bettor's bet is {computerBet} coins.");
+                _tellHuman($"The {SGR.BrightBlue}bettor's{SGR.Reset} bet is {computerBet} coins.");
                 int humanBet = _askHumanForInt("How much do you want to bet?", computerBet, _human.Coins);
                 _human.PlaceBet(humanBet);
             }
@@ -362,15 +361,15 @@ namespace BlackJack
             {
                 Option[] options = new Option[]
                     {
-                        new Option('M', $"Match the dealer's bet of {SGR.Yellow}{_dealer.Bet} coins{SGR.Reset}.", () => shouldMatch = true),
-                        new Option('K', $"Keep your bet of {SGR.Yellow}{_bettor.Bet} coins{SGR.Reset}.", () => shouldMatch = false),
+                        new Option('M', $"Match the {SGR.BrightBlue}dealer's{SGR.Reset} bet of {SGR.BrightYellow}{_dealer.Bet} coins{SGR.Reset}.", () => shouldMatch = true),
+                        new Option('K', $"Keep your bet of {SGR.BrightYellow}{_bettor.Bet} coins{SGR.Reset}.", () => shouldMatch = false),
                     };
-                _letHumanChooseActionAndRunIt($"Seems the dealer bets higher ({SGR.Yellow}{_dealer.Bet} coins{SGR.Reset}), do you want to match their bet?", options);
+                _letHumanChooseActionAndRunIt($"Seems the {SGR.BrightBlue}dealer{SGR.Reset} bets higher ({SGR.BrightYellow}{_dealer.Bet} coins{SGR.Reset}), do you want to match their bet?", options);
             }
 
             if (shouldMatch)
             {
-                _tellHuman($"Interesting, seems as if the bettor has chosen wants to match the deealer's bet of {SGR.Yellow}{_dealer.Bet} coins{SGR.Reset}!");
+                _tellHuman($"Interesting, seems as if the {SGR.BrightBlue}bettor{SGR.Reset} has chosen wants to match the {SGR.BrightBlue}dealer's{SGR.Reset} bet of {SGR.BrightYellow}{_dealer.Bet} coins{SGR.Reset}!");
                 _bettor.IncreaseBetTo(_dealer.Bet);
             }
         }
@@ -400,15 +399,15 @@ namespace BlackJack
                 bool shouldDouble = false;
                 Option[] options = new Option[]
                     {
-                        new Option('D', $"Double it! ({SGR.Yellow}{_human.Bet * 2} coins{SGR.Reset})", () => shouldDouble = true),
-                        new Option('K', $"Keep your bet! ({SGR.Yellow}{_human.Bet} coins{SGR.Reset})", () => shouldDouble = false)
+                        new Option('D', $"Double it! ({SGR.BrightYellow}{_human.Bet * 2} coins{SGR.Reset})", () => shouldDouble = true),
+                        new Option('K', $"Keep your bet! ({SGR.BrightYellow}{_human.Bet} coins{SGR.Reset})", () => shouldDouble = false)
                     };
                 _letHumanChooseActionAndRunIt("Now when you've gotten to see the cards, do you want to double your bet?", options);
 
                 if (shouldDouble)
                 {
                     _human.IncreaseBetTo(_human.Bet * 2);
-                    _tellHuman($"You chose to double your bet! It is now {SGR.Yellow}{_human.Bet} coins{SGR.Reset}!");
+                    _tellHuman($"You chose to double your bet! It is now {SGR.BrightYellow}{_human.Bet} coins{SGR.Reset}!");
                 }
             }
 
@@ -419,7 +418,7 @@ namespace BlackJack
                 if (shouldDouble)
                 {
                     _computer.IncreaseBetTo(_computer.Bet * 2);
-                    _tellHuman($"The computer chose to double their bet! It is now {SGR.Yellow}{_computer.Bet} coins{SGR.Reset}!");
+                    _tellHuman($"The {SGR.BrightBlue}{(_computer.IsDealer ? "dealer" : "bettor")}{SGR.Reset} chose to double their bet! It is now {SGR.BrightYellow}{_computer.Bet} coins{SGR.Reset}!");
                 }
             }
         }
@@ -455,10 +454,12 @@ namespace BlackJack
 
             if (_human.IsDealer)
             {
-                shouldHit = _computer.ChooseToHitOrNot(_human.Hand);
+                // computer is bettor
+                shouldHit = _computer.ChooseToHitOrNot();
             }
             else
             {
+                // human is bettor
                 shouldHit = _askIfHumanWantsToHit();
             }
 
@@ -466,7 +467,7 @@ namespace BlackJack
                 return false;
 
             Card card = _deck.Draw();
-            _tellHuman($"The bettor drew a {card.ToString()}!");
+            _tellHuman($"The {SGR.BrightBlue}bettor{SGR.Reset} drew a {card.ToString()}!");
             _bettor.ReceiveCard(card);
 
             if (_bettor.Hand.Sum(card => card.Points) > 21)
@@ -484,12 +485,14 @@ namespace BlackJack
         {
             bool shouldHit = false;
 
-            if (!_human.IsDealer)
+            if (_computer.IsDealer)
             {
-                shouldHit = _computer.ChooseToHitOrNot();
+                // computer is dealer
+                shouldHit = _computer.ChooseToHitOrNot(_human.Hand);
             }
             else
             {
+                // human is dealer
                 shouldHit = _askIfHumanWantsToHit();
             }
 
@@ -497,7 +500,7 @@ namespace BlackJack
                 return false;
 
             Card card = _deck.Draw();
-            _tellHuman($"The dealer drew a {card.ToString()}!");
+            _tellHuman($"The {SGR.BrightBlue}dealer{SGR.Reset} drew a {card.ToString()}!");
             _dealer.ReceiveCard(card);
 
             if (_dealer.Hand.Sum(card => card.Points) > 21)
@@ -518,17 +521,17 @@ namespace BlackJack
         {
             // Remind the human of their role, as all dialog is "role based".
             string humanRole = _human.IsDealer ? "dealer" : "bettor";
-            _tellHuman($"Remember that you are the {humanRole}!");
+            _tellHuman($"Remember that you are the {SGR.BrightCyan}{humanRole}{SGR.Reset}!");
 
             if (isBettorAbove21)
             {
-                _tellHuman("Ouch! Seems like the bettor has busted! The dealer is the winner!");
+                _tellHuman($"Ouch! Seems like the {SGR.BrightBlue}bettor{SGR.Reset} has busted! The {SGR.BrightBlue}dealer{SGR.Reset} is the winner!");
                 return new Player[] { _dealer };
             }
 
             if (isDealerAbove21)
             {
-                _tellHuman("Ouch! Seems like the dealer has busted! The bettor is the winner!");
+                _tellHuman($"Ouch! Seems like the {SGR.BrightBlue}dealer{SGR.Reset} has busted! The {SGR.BrightBlue}bettor{SGR.Reset} is the winner!");
                 return new Player[] { _bettor };
             }
 
@@ -543,11 +546,11 @@ namespace BlackJack
 
             if (bettorSum > dealerSum)
             {
-                _tellHuman($"The bettor has won! With {bettorSum}-{dealerSum}");
+                _tellHuman($"The {SGR.BrightBlue}bettor{SGR.Reset} has won! With {bettorSum}-{dealerSum}");
                 return new Player[] { _bettor };
             }
 
-            _tellHuman($"The dealer has won! With {dealerSum}-{bettorSum}");
+            _tellHuman($"The {SGR.BrightBlue}dealer{SGR.Reset} has won! With {dealerSum}-{bettorSum}");
             return new Player[] { _dealer };
         }
 
@@ -557,18 +560,21 @@ namespace BlackJack
         /// <param name="winners"></param>
         private void _giveWinnersMoney(Player[] winners)
         {
-            int priceMoney = (_human.Bet + _computer.Bet) / winners.Length;
-            _tellHuman($"The price money is {SGR.Yellow}{priceMoney} coins{SGR.Reset}!");
+            // Price money is the computer's and player's bet plus a little extra.
+            // The price money is divided between all winners (both if tie).
+            int totalBets = _human.Bet + _computer.Bet;
+            int priceMoney = (int)(totalBets * 1.25d) / winners.Length;
+            _tellHuman($"The price money is {SGR.BrightYellow}{priceMoney} coins{SGR.Reset}!");
 
             foreach (Player winner  in winners)
             {
                 if (winner.IsDealer)
                 {
-                    _tellHuman("Let's give out money to the dealer!");
+                    _tellHuman($"Let's give out money to the {SGR.BrightBlue}dealer{SGR.Reset}!");
                 }
                 else
                 {
-                    _tellHuman("Let's give out money to the bettor!");
+                    _tellHuman($"Let's give out money to the {SGR.BrightBlue}bettor{SGR.Reset}!");
                 }
 
                 winner.ReceiveCoins(priceMoney);
@@ -626,28 +632,28 @@ namespace BlackJack
             {
                 _tellHuman("Oh no! Seems as if you're broke again...");
                 _tellHuman("Well, that is what happens when you gamble too much...");
-                _tellHuman("Oh... who do we have here... It's the Devil!");
-                _tellHuman("The Devil tells you that you are to no worth; your soul has already been sold.");
+                _tellHuman($"Oh... who do we have here... It's the {SGR.Red}Devil{SGR.Reset}!");
+                _tellHuman($"The {SGR.Red}Devil{SGR.Reset} tells you that you are to no worth; your soul has already been sold.");
                 _tellHuman("So, it seems our journey ends here... Bye!");
-                _tellHuman($"{SGR.Yellow}You have discovered {SGR.Green}Ending #2{SGR.Yellow}!");
+                _tellHuman($"{SGR.BrightYellow}You have discovered {SGR.Green}Ending #2{SGR.BrightYellow}!");
                 return true;
             }
 
             _tellHuman("Oh no! Seems as if you're broke now...");
             _tellHuman("Well, that is what happens when you gamble too much...");
-            _tellHuman("Oh... who do we have here... It's the Devil!");
+            _tellHuman($"Oh... who do we have here... It's the {SGR.Red}Devil{SGR.Reset}!");
             bool shouldSellSoul = false;
             Option[] options =
                 {
-                    new Option('S', $"Sell your soul to the devil and receive {SGR.Yellow}5 000 coins{SGR.Reset}.", () => shouldSellSoul = true),
+                    new Option('S', $"Sell your soul to the {SGR.Red}Devil{SGR.Reset} and receive {SGR.BrightYellow}5 000 coins{SGR.Reset}.", () => shouldSellSoul = true),
                     new Option('Q', "Quit gambling and get a healthier life.", () => shouldSellSoul = false)
                 };
 
-            _letHumanChooseActionAndRunIt($"The Devil offers you to sell your soul in return for {SGR.Yellow}5 000 coins{SGR.Reset}... What do you do?", options);
+            _letHumanChooseActionAndRunIt($"The {SGR.Red}Devil{SGR.Reset} offers you to sell your soul in return for {SGR.BrightYellow}5 000 coins{SGR.Reset}... What do you do?", options);
 
             if (shouldSellSoul)
             {
-                _tellHuman($"The Devil seems satisfied with your deal. You now have {SGR.Yellow}5 000 coins{SGR.Reset}!");
+                _tellHuman($"The {SGR.Red}Devil{SGR.Reset} seems satisfied with your deal. You now have {SGR.BrightYellow}5 000 coins{SGR.Reset}!");
                 _human.ReceiveCoins(5_000);
                 _hasSoldSoul = true;
                 return false;
@@ -655,11 +661,11 @@ namespace BlackJack
             else
             {
                 // Ending #1
-                _tellHuman("The Devil isn't pleased with you. He dismisses you...");
+                _tellHuman($"The {SGR.Red}Devil{SGR.Reset} isn't pleased with you. He dismisses you...");
                 _tellHuman("You wanted to live a healthy life without gambling...");
                 _tellHuman("Sadly, no money means broke, broke means no food, no food means no life...");
                 _tellHuman("I am sorry it had to end this way...");
-                _tellHuman($"{SGR.Yellow}You have discovered {SGR.Green}Ending #1{SGR.Yellow}!");
+                _tellHuman($"{SGR.BrightYellow}You have discovered {SGR.Green}Ending #1{SGR.BrightYellow}!");
                 return true;
             }
         }
