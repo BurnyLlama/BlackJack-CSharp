@@ -58,16 +58,16 @@ namespace BlackJack
             switch (House)
             {
                 case EHouses.Spades: 
-                    house = $"{SGR.Black}>";
+                    house = $"{SGR.Black}♠";
                     break;
                 case EHouses.Hearts:
-                    house = $"{SGR.Red}<";
+                    house = $"{SGR.Red}♥";
                     break;
                 case EHouses.Clubs:
-                    house = $"{SGR.Black}%";
+                    house = $"{SGR.Black}♣";
                     break;
                 case EHouses.Diamonds:
-                    house = $"{SGR.Red}+";
+                    house = $"{SGR.Red}♦";
                     break;
                 default:
                     house = "-";

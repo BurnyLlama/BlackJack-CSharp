@@ -45,12 +45,7 @@ namespace BlackJack
         {
             // Inform the player about the game...
             _tellHuman(SGR.Bold + "Welcome to BlackJack!");
-            _tellHuman("Here's a list of all symbols and what they mean:");
-            _tellHuman($"  {SGR.BG_BrightWhite}{SGR.Black}[>]{SGR.Reset} Spades");
-            _tellHuman($"  {SGR.BG_BrightWhite}{SGR.Red}[<]{SGR.Reset} Hearts");
-            _tellHuman($"  {SGR.BG_BrightWhite}{SGR.Black}[%]{SGR.Reset} Clubs");
-            _tellHuman($"  {SGR.BG_BrightWhite}{SGR.Red}[+]{SGR.Reset} Diamonds");
-            _tellHuman($"In this game aces are {SGR.Underline}always{SGR.Reset} worth 1 point!");
+            _tellHuman("In this game aces are worth 11 points, unless they would make your hand go above 21, in which case they're worth 1 point!");
             _tellHuman("The game has four endingins -- try finding them all!");
             _tellHuman("Anyways... Let the game begin! Good luck!\n");
 
