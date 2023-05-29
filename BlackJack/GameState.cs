@@ -479,7 +479,7 @@ namespace BlackJack
             _tellHuman($"The {SGR.BrightBlue}bettor{SGR.Reset} drew a {card.ToString()}!");
             _bettor.ReceiveCard(card);
 
-            if (_bettor.Hand.Sum(card => card.Points) > 21)
+            if (_bettor.TotalPointsInHand() > 21)
                 return true;
 
             // Recursively run until the bettor stop or their hand gets above 21.
@@ -512,7 +512,7 @@ namespace BlackJack
             _tellHuman($"The {SGR.BrightBlue}dealer{SGR.Reset} drew a {card.ToString()}!");
             _dealer.ReceiveCard(card);
 
-            if (_dealer.Hand.Sum(card => card.Points) > 21)
+            if (_dealer.TotalPointsInHand() > 21)
                 return true;
 
             // Recursively run until the bettor stop or their hand gets above 21.
@@ -544,8 +544,8 @@ namespace BlackJack
                 return new Player[] { _bettor };
             }
 
-            int bettorSum = _bettor.Hand.Sum(card => card.Points);
-            int dealerSum = _dealer.Hand.Sum(card => card.Points);
+            int bettorSum = _bettor.TotalPointsInHand();
+            int dealerSum = _dealer.TotalPointsInHand();
 
             if (bettorSum == dealerSum)
             {

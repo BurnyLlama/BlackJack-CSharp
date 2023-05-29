@@ -78,7 +78,7 @@ namespace BlackJack
             switch (Value)
             {
                 case EValues.A: 
-                    value = "1";
+                    value = "A";
                     break;
                 case EValues.V2:
                     value = "2";

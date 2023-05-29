@@ -34,11 +34,19 @@ namespace BlackJack
             _bet = 0;
         }
 
+        /// <summary>
+        /// Adds one card to the player's hand-
+        /// </summary>
+        /// <param name="card"></param>
         public void ReceiveCard(Card card)
         {
             _hand.Add(new Card(card.House, card.Value));
         }
 
+        /// <summary>
+        /// Adds multiple cards to the player's hand.
+        /// </summary>
+        /// <param name="cards"></param>
         public void ReceiveCards(List<Card> cards)
         {
             foreach (Card card in cards)
@@ -47,17 +55,30 @@ namespace BlackJack
             }
         }
 
+        /// <summary>
+        /// Removes all cards from the player's hand.
+        /// </summary>
         public void ClearHand()
         {
             _hand = new List<Card>();
         }
 
+        /// <summary>
+        /// Place a bet. This also withdraws money from the player's balance.
+        /// </summary>
+        /// <param name="bet"></param>
         public void PlaceBet(int bet)
         {
             _bet = bet;
             _coins -= bet;
         }
 
+        /// <summary>
+        /// Increases the bet to a new bet.
+        /// NOTE: This is increase TO, not increase BY!
+        /// Withdraws the extra money needed from the player's balance.
+        /// </summary>
+        /// <param name="newBet"></param>
         public void IncreaseBetTo(int newBet)
         {
             int betDifference = newBet - _bet;
@@ -65,6 +86,11 @@ namespace BlackJack
             _coins -= betDifference;
         }
 
+        
+        /// <summary>
+        /// Add coins to the player's balance.
+        /// </summary>
+        /// <param name="coins"></param>
         public void ReceiveCoins(int coins)
         {
             if (coins < 0)
@@ -75,14 +101,40 @@ namespace BlackJack
             _coins += coins;
         }
 
+        /// <summary>
+        /// Returns the cards as a space-separated string.
+        /// See Card.ToString() for format of card.
+        /// </summary>
+        /// <returns></returns>
         public string HandAsString()
         {
             return _hand.Aggregate("", (acc, card) => acc += card.ToString() + " ");
         }
 
+        /// <summary>
+        /// Calculate total sum of cards on hand.
+        /// An ace is worth 11 points, unless that would make the sum go above 21,
+        /// in which case the ace is worth one point.
+        /// </summary>
+        /// <returns></returns>
         public int TotalPointsInHand()
         {
-            return _hand.Sum(card => card.Points);
+            //return _hand.Sum(card => card.Points);
+            int sum = 0;
+            // Sort the cards by highest cards first (ace = 1 point) to account
+            // so that we know if the ace would make the sum go above 21.
+            foreach (Card card in _hand.OrderByDescending(card => card.Points))
+            {
+                if (card.Value == Card.EValues.A && sum <= 10)
+                {
+                    sum += 11;
+                }
+                else
+                {
+                    sum += card.Points;
+                }
+            }
+            return sum;
         }
     }
 }
