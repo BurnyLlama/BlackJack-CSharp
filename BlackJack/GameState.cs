@@ -58,7 +58,6 @@ namespace BlackJack
                 // but also lessen any confusion about the game.
                 string humansRole = _human.IsDealer ? "dealer" : "bettor";
                 _tellHuman($"You are the {SGR.BrightCyan}{humansRole}{SGR.Reset} this round!");
-                _padLine();
 
                 // Give the player information about their balance.
                 _printBalance();
@@ -67,6 +66,7 @@ namespace BlackJack
                     _tellHuman("You are very poor, maybe you should stop playing and get a jo-");
                     _tellHuman("Sorry, what I meant to say was: you should bet it all for higher rewards when you win!");
                 }
+                _padLine();
 
                 // Start the betting.
                 _tellHuman("It is betting time!");
@@ -86,7 +86,6 @@ namespace BlackJack
 
                 // Now the computer and human can choose if they want to double their bet.
                 _askToDoubleBet();
-                _padLine();
 
                 // Present the initial cards.
                 // If the human is dealer it gets to know all the computer's cards.
@@ -133,6 +132,7 @@ namespace BlackJack
                 _tellHuman($"Congratulations to the winner{(winners.Length == 1 ? "" : "s")}!");
                 // Inform the human of their new balance.
                 _printBalance();
+                _padLine();
 
                 // Check if the player goes bankrupt...
                 // The player can't continue playing without coins.
@@ -432,6 +432,7 @@ namespace BlackJack
                     _human.IncreaseBetTo(_human.Bet * 2);
                     _tellHuman($"You chose to double your bet! It is now {SGR.BrightYellow}{_human.Bet} coins{SGR.Reset}!");
                 }
+                _padLine();
             }
 
             if (_computer.Coins > _computer.Bet)
@@ -442,6 +443,7 @@ namespace BlackJack
                 {
                     _computer.IncreaseBetTo(_computer.Bet * 2);
                     _tellHuman($"The {SGR.BrightBlue}{(_computer.IsDealer ? "dealer" : "bettor")}{SGR.Reset} chose to double their bet! It is now {SGR.BrightYellow}{_computer.Bet} coins{SGR.Reset}!");
+                    _padLine();
                 }
             }
         }
