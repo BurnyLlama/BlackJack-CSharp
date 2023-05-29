@@ -105,8 +105,13 @@ namespace BlackJack
         /// This could use some statistics, but random is cool too!
         /// </summary>
         /// <returns></returns>
-        public bool ChooseToMatchBet()
+        public bool ChooseToMatchBet(int humanBet)
         {
+            if (_coins < (humanBet - _bet))
+            {
+                return false;
+            }
+
             int randomSeed = (int)System.DateTime.Now.ToBinary();
             Random rand = new Random(randomSeed);
             bool shouldMatchBet = rand.Next(1, 12) > 5;
