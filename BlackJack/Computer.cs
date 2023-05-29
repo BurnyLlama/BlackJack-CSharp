@@ -22,7 +22,7 @@ namespace BlackJack
         /// <returns></returns>
         public bool ChooseToHitOrNot()
         {
-            int sumOfCardsInHand = _hand.Sum(card => card.Points);
+            int sumOfCardsInHand = TotalPointsInHand();
 
             // Always safe to draw if sum <= 11
             if (sumOfCardsInHand <= 11)
@@ -57,10 +57,9 @@ namespace BlackJack
         /// </summary>
         /// <param name="playerHand"></param>
         /// <returns></returns>
-        public bool ChooseToHitOrNot(List<Card> playerHand)
+        public bool ChooseToHitOrNot(int sumOfCardsInPlayerHand)
         {
-            int sumOfCardsInHand = _hand.Sum(card => card.Points);
-            int sumOfCardsInPlayerHand = playerHand.Sum(card => card.Points);
+            int sumOfCardsInHand = TotalPointsInHand();
 
             // Always take more cards if less than player hand.
             // If the computer stops under the player hand, it's a loss.
@@ -120,7 +119,7 @@ namespace BlackJack
         /// <returns></returns>
         public bool ChooseToDouble()
         {
-            if (Hand.Sum(card => card.Points) > 18)
+            if (TotalPointsInHand() > 18)
             {
                 return true;
             }

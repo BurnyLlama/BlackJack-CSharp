@@ -492,7 +492,7 @@ namespace BlackJack
             if (_computer.IsDealer)
             {
                 // computer is dealer
-                shouldHit = _computer.ChooseToHitOrNot(_human.Hand);
+                shouldHit = _computer.ChooseToHitOrNot(_human.TotalPointsInHand());
             }
             else
             {
