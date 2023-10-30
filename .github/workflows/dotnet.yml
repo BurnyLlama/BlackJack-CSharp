@@ -21,7 +21,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 6.0.x
 
     - name: Restore dependencies
       run: dotnet restore
@@ -35,4 +35,4 @@ jobs:
       with:
         # Artifact name
         name: ArtifactBlackJack #.zip will be added automatically
-        path: bin/release/net5.0/*.*
+        path: bin/release/net6.0/*.*
