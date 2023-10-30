@@ -35,4 +35,4 @@ jobs:
       with:
         # Artifact name
         name: ArtifactBlackJack #.zip will be added automatically
-        path: bin/*
+        path: ./*
