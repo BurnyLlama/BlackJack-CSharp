@@ -14,11 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Publish win-x64
-      run: dotnet publish ProjectName/ProjectName.csproj -c Release -r win7-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true -p:PublishReadyToRun=false
+      run: dotnet publish BlackJack/BlackJack.csproj -c Release -r win7-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true -p:PublishReadyToRun=false
       
     - name: Create win client archive
       run: |
-        cd /home/runner/work/ProjectName/bin/Release/net5.0/win7-x64/publish/ && zip -r client-win-x64.zip *
+        cd /home/runner/work/BlackJack/bin/Release/net5.0/win7-x64/publish/ && zip -r client-win-x64.zip *
         
     - name: Get current date
       id: date
@@ -42,6 +42,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /home/runner/work/RepoName/RepoName/ProjectName/bin/Release/net5.0/win7-x64/publish/client-win-x64.zip
+        asset_path: /home/runner/work/BlackJack-CSharp/BlackJack-CSharp/BlackJack/bin/Release/net5.0/win7-x64/publish/client-win-x64.zip
         asset_name: client-win-x64.zip
         asset_content_type: application/zip
